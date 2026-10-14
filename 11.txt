@@ -1,0 +1,57 @@
+SLIP 11
+Q1 [10 Marks] Apply Min-Max Scaling to a product DataFrame.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+df = pd.DataFrame({
+    "Product_ID":[1,2,3,4,5],
+    "Price":[100,250,400,150,500],
+    "Quantity_Sold":[20,35,50,25,60],
+    "Discount":[5,10,15,0,20],
+    "Revenue":[1900,8000,17000,3750,24000]
+})
+cols = ["Price","Quantity_Sold","Discount","Revenue"]
+df[cols] = MinMaxScaler().fit_transform(df[cols])
+print(df)
+Q2 [20 Marks] Apply Logistic Regression to classify smartphones into price categories.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,f1_score,confusion_matrix
+df=pd.read_csv("train.csv").dropna()
+target="price_range" if "price_range" in df.columns else df.columns[-1]
+X=df.drop(columns=[target]); y=df[target]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=LogisticRegression(max_iter=1000).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("F1 Score:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Create book data, compare authors by publication period using a Venn diagram and generate a Word Cloud.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+from wordcloud import WordCloud
+df=pd.DataFrame({
+ "Book Title":["Data Science","Python Basics","AI Guide",
+               "ML Handbook","Python Projects","Deep Learning"],
+ "Author":["A","B","C","A","B","D"],
+ "Publication Year":[2010,2012,2016,2018,2020,2022],
+ "Average Rating":[4.1,4.2,4.5,4.6,4.4,4.7],
+ "Number of Ratings":[500,600,800,900,700,1000]
+})
+old=set(df[df["Publication Year"]<2017]["Author"])
+new=set(df[df["Publication Year"]>=2017]["Author"])
+venn2([old,new],set_labels=("Older","Newer"))
+plt.title("Authors by Publication Period"); plt.show()
+text=" ".join(df["Book Title"])
+wc=WordCloud(width=800,height=400,
+             background_color="white").generate(text)
+plt.imshow(wc,interpolation="bilinear"); plt.axis("off")
+plt.title("Book Titles Word Cloud"); plt.show()

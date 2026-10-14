@@ -1,0 +1,54 @@
+SLIP 5
+Q1 [10 Marks] Create customer_DataFrame and apply Label Encoding on suitable categorical attributes.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+df = pd.DataFrame({
+    "Customer_ID":[101,102,103,104,105],
+    "Gender":["Male","Female","Female","Male","Female"],
+    "City":["Pune","Mumbai","Nashik","Pune","Mumbai"],
+    "Membership_Type":["Gold","Silver","Gold","Bronze","Silver"]
+})
+print("Before encoding:\n",df)
+for col in ["Gender","City","Membership_Type"]:
+    df[col] = LabelEncoder().fit_transform(df[col])
+print("\nAfter encoding:\n",df)
+
+
+Q2 [20 Marks] Create Netflix/Amazon Prime customer data and make a Venn diagram and Pie chart.
+Solution — Q2 (Option A)
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+netflix={"Amit","Riya","Neha","Rahul","Sneha"}
+prime={"Riya","Neha","Karan","Sneha","Vikas"}
+venn2([netflix,prime],set_labels=("Netflix","Amazon Prime"))
+plt.title("Netflix vs Amazon Prime Users")
+plt.show()
+values=[len(netflix-prime),len(prime-netflix),len(netflix&prime)]
+plt.pie(values,labels=["Only Netflix","Only Prime","Both"],
+        autopct="%1.1f%%")
+plt.title("Subscription Distribution")
+plt.show()
+
+OR
+
+Q2 [20 Marks] Use KNN on Spambase to classify spam/non-spam and evaluate Accuracy, Confusion Matrix, Precision, Recall
+and F1.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("spambase.csv").dropna()
+X=df.iloc[:,:-1]; y=df.iloc[:,-1]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred))
+print("Recall:",recall_score(yte,pred))
+print("F1:",f1_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))

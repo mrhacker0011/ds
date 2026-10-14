@@ -1,0 +1,75 @@
+
+SLIP 1
+Q1 [10 Marks] Create a DataFrame with Price, Rating and Number of Sales and generate a Dendrogram.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+df = pd.DataFrame({
+    "Product":["P1","P2","P3","P4","P5"],
+    "Price":[250,280,500,520,800],
+    "Rating":[4.1,4.2,4.5,4.6,4.8],
+    "Sales":[120,140,220,240,350]
+})
+Z = linkage(df[["Price","Rating","Sales"]], method="ward")
+dendrogram(Z, labels=df["Product"].tolist())
+plt.title("Product Similarity Dendrogram")
+plt.xlabel("Products"); plt.ylabel("Distance")
+plt.show()
+
+
+Q2 [20 Marks] Create Loan_application.csv with at least 10 records and perform Feature Selection and Feature Extraction using
+PCA.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+df=pd.DataFrame({
+ "Application_ID":range(1,11),
+ "Age":[22,25,29,31,35,40,42,45,50,55],
+ "Income":[25000,30000,42000,50000,55000,65000,70000,80000,90000,100000],
+ "Credit_Score":[620,650,680,700,720,740,760,780,800,820],
+ "Loan_Amount":[10000,15000,20000,25000,30000,35000,40000,45000,50000,60000],
+ "Employment_Years":[1,2,3,4,5,7,8,10,12,15],
+ "Debt_Ratio":[.5,.45,.4,.38,.35,.3,.28,.25,.22,.2],
+ "Loan_Status":["Rejected","Rejected","Approved","Approved","Approved",
+                "Approved","Approved","Approved","Approved","Approved"]
+})
+X=df.drop(columns=["Application_ID","Loan_Status"])
+y=(df["Loan_Status"]=="Approved").astype(int)
+selected=SelectKBest(chi2,k=3).fit_transform(X,y)
+print("Selected features:\n",selected)
+scaled=StandardScaler().fit_transform(X)
+pca=PCA(n_components=2)
+reduced=pca.fit_transform(scaled)
+print("\nPCA result:\n",reduced)
+print("Explained variance:",pca.explained_variance_ratio_)
+
+OR
+
+
+Q2 [20 Marks] Apply K-Means clustering on the built-in Iris dataset with K = 3 and display clusters and centroids.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Video Lecture","Quiz"],["Video Lecture","Assignment"],
+["Quiz","Discussion Forum"],["Video Lecture","Quiz","Assignment"],
+["Assignment","Discussion Forum"],["Video Lecture","Certificate"],
+["Quiz","Certificate"],["Video Lecture","Quiz"],
+["Assignment","Certificate"],["Video Lecture","Quiz","Certificate"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+
+

@@ -1,0 +1,48 @@
+SLIP 13
+Q1 [10 Marks] Create a bar chart showing employees by department.
+Solution — Q1
+import matplotlib.pyplot as plt
+departments = ["HR","Finance","IT","Sales","Marketing"]
+employees = [25,35,80,55,40]
+plt.bar(departments, employees)
+plt.title("Employees by Department")
+plt.xlabel("Department"); plt.ylabel("Employees")
+plt.show()
+Q2 [20 Marks] Apply Logistic Regression to classify smartphones into price categories.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,f1_score,confusion_matrix
+df=pd.read_csv("train.csv").dropna()
+target="price_range" if "price_range" in df.columns else df.columns[-1]
+X=df.drop(columns=[target]); y=df[target]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=LogisticRegression(max_iter=1000).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("F1 Score:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Apply K-Means to the E-Commerce Customer dataset.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+X=df[["Attendance","Marks"]]
+Xsc=StandardScaler().fit_transform(X)
+model=KMeans(n_clusters=3,n_init=10,random_state=42)
+df["Cluster"]=model.fit_predict(Xsc)
+centers=model.cluster_centers_
+plt.scatter(Xsc[:,0],Xsc[:,1],c=df["Cluster"],cmap="viridis")
+plt.scatter(centers[:,0],centers[:,1],c="red",marker="X",s=150)
+plt.xlabel("Attendance"); plt.ylabel("Marks")
+plt.title("K-Means Clustering (K=3)")
+plt.show()
+print(df[["Attendance","Marks","Cluster"]])
+

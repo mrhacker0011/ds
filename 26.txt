@@ -1,0 +1,50 @@
+SLIP 26
+Q1 [10 Marks] Create book_records and perform Equal Width Binning on Book_Price.
+Solution — Q1
+import pandas as pd
+df = pd.DataFrame({
+    "Person_ID": range(1,11),
+    "Age":[18,21,25,29,33,37,42,48,55,63]
+})
+bins = [0,20,30,40,50,100]
+labels = ["0-20","21-30","31-40","41-50","51+"]
+df["Age_Bin"] = pd.cut(df["Age"], bins=bins, labels=labels)
+print("Original and discretized data:")
+print(df)
+Q2 [20 Marks] Use World Cities data for a geospatial map and population Treemap.
+Solution — Q2 (Option A)
+import pandas as pd
+import folium
+import matplotlib.pyplot as plt
+import squarify
+df=pd.read_csv("worldcities.csv").dropna(
+    subset=["lat","lng","population"])
+m=folium.Map(location=[20,0],zoom_start=2)
+for _,r in df.head(100).iterrows():
+    folium.CircleMarker(
+        [r["lat"],r["lng"]],radius=5,
+        popup=r["city"],fill=True).add_to(m)
+m.save("world_cities_map.html")
+top=df.nlargest(15,"population")
+squarify.plot(sizes=top["population"],label=top["city"],alpha=.8)
+plt.title("Population Treemap"); plt.axis("off"); plt.show()
+OR
+Q2 [20 Marks] Apply Polynomial Regression to Car Price Prediction data and evaluate R².
+Solution — Q2 (Option B)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+df=pd.read_csv("car data.csv").dropna()
+X=df[["Year","Present_Price","Kms_Driven"]]
+y=df["Selling_Price"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+poly=PolynomialFeatures(degree=2)
+Xtr2=poly.fit_transform(Xtr)
+Xte2=poly.transform(Xte)
+model=LinearRegression().fit(Xtr2,ytr)
+pred=model.predict(Xte2)
+print("R2 Score:",r2_score(yte,pred))
+print("Predicted values:",pred[:5])

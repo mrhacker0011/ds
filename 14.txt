@@ -1,0 +1,52 @@
+SLIP 14
+Q1 [10 Marks] Load titanic.csv and create a passenger-class histogram and survival Pie Chart.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df=pd.read_csv("titanic.csv")
+df["Pclass"].value_counts().sort_index().plot(kind="bar")
+plt.title("Passengers by Class")
+plt.xlabel("Passenger Class"); plt.ylabel("Passengers")
+plt.show()
+df["Survived"].value_counts().plot(kind="pie",autopct="%1.1f%%")
+plt.title("Survival Distribution"); plt.ylabel("")
+plt.show()
+Q2 [20 Marks] Apply Polynomial Regression to predict song popularity and evaluate MAE, RMSE and R².
+Solution — Q2 (Option A)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error,mean_squared_error,r2_score
+df=pd.read_csv("Spotify -Raw Data.csv").dropna()
+X=df[["danceability","energy","tempo"]]
+y=df["popularity"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+poly=PolynomialFeatures(degree=2)
+Xtr=poly.fit_transform(Xtr); Xte=poly.transform(Xte)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MAE:",mean_absolute_error(yte,pred))
+print("RMSE:",np.sqrt(mean_squared_error(yte,pred)))
+print("R2:",r2_score(yte,pred))
+OR
+Q2 [20 Marks] Use KNN on Spambase to classify spam/non-spam and evaluate classification metrics.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("spambase.csv").dropna()
+X=df.iloc[:,:-1]; y=df.iloc[:,-1]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred))
+print("Recall:",recall_score(yte,pred))
+print("F1:",f1_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))

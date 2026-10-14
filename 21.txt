@@ -1,0 +1,55 @@
+
+SLIP 21
+Q1 [10 Marks] Create vehicle data with an outlier and use Box Plots.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Fuel_Efficiency":[18,20,22,21,45],
+    "Engine_Power":[80,95,110,105,250],
+    "Vehicle_Weight":[1100,1200,1300,1250,1500],
+    "Engine_Size":[1.2,1.4,1.6,1.5,3.0],
+    "Acceleration":[12,11,10,10.5,7]
+})
+fig, ax = plt.subplots(1,2,figsize=(9,4))
+ax[0].boxplot(df["Fuel_Efficiency"])
+ax[0].set_title("Fuel Efficiency")
+ax[1].boxplot(df["Engine_Power"])
+ax[1].set_title("Engine Power")
+plt.show()
+Q2 [20 Marks] Apply Min-Max Scaling, Standardization and Normalization.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
+df = pd.DataFrame({
+    "Temperature":[20,25,30,35,40],
+    "Humidity":[45,50,60,65,70],
+    "WindSpeed":[5,8,10,12,15],
+    "Pressure":[1005,1010,1012,1015,1020],
+    "Rainfall":[10,20,15,30,25]
+})
+print("Original:\n",df)
+print("\nMin-Max:\n",pd.DataFrame(
+    MinMaxScaler().fit_transform(df),columns=df.columns))
+print("\nStandardized:\n",pd.DataFrame(
+    StandardScaler().fit_transform(df),columns=df.columns))
+print("\nNormalized:\n",pd.DataFrame(
+    Normalizer().fit_transform(df),columns=df.columns))
+OR
+Q2 [20 Marks] Apply Random Forest Classification to Heart Disease data and evaluate classification metrics.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score,confusion_matrix
+df=pd.read_csv("heart.csv").dropna()
+target="target" if "target" in df.columns else df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=RandomForestClassifier(n_estimators=100,random_state=42)
+model.fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))

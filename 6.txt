@@ -1,0 +1,57 @@
+SLIP 6
+Q1 [10 Marks] Create car data and plot Engine Size against Fuel Efficiency.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Model":["A","B","C","D","E"],
+    "Engine_Size":[1.2,1.5,2.0,2.5,3.0],
+    "Fuel_Efficiency":[20,18,15,12,10]
+})
+plt.scatter(df["Engine_Size"],df["Fuel_Efficiency"],s=80)
+plt.title("Engine Size vs Fuel Efficiency")
+plt.xlabel("Engine Size (L)")
+plt.ylabel("Fuel Efficiency (km/L)")
+plt.show()
+Q2 [20 Marks] Use Sports Performance data for Simple Linear Regression and evaluate with R².
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+df=pd.read_csv("collegiate_athlete_injury_dataset.csv").dropna()
+X=df[["Training Hours Per Week"]]
+y=df["Performance Score"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("R2 Score:",r2_score(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Training Hours Per Week")
+plt.ylabel("Performance Score")
+plt.title("Training vs Performance")
+plt.show()
+OR
+Q2 [20 Marks] Implement KNN on the Customer dataset and evaluate Accuracy and Confusion Matrix.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("Mall_Customers.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))

@@ -1,0 +1,48 @@
+SLIP 24
+Q1 [10 Marks] Normalize House_Area, Number_of_Rooms and Monthly_Rent.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+df = pd.DataFrame({
+    "City":["Pune","Mumbai","Nashik","Nagpur","Kolhapur"],
+    "House_Type":["Flat","Flat","House","Flat","House"],
+    "House_Area":[600,800,900,700,1000],
+    "Number_of_Rooms":[2,3,3,2,4],
+    "Monthly_Rent":[12000,18000,15000,10000,16000]
+})
+cols=["House_Area","Number_of_Rooms","Monthly_Rent"]
+df[cols]=MinMaxScaler().fit_transform(df[cols])
+print(df)
+Q2 [20 Marks] Create Netflix/Amazon Prime customer data and make a Venn diagram and Pie chart.
+Solution — Q2 (Option A)
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+netflix={"Amit","Riya","Neha","Rahul","Sneha"}
+prime={"Riya","Neha","Karan","Sneha","Vikas"}
+venn2([netflix,prime],set_labels=("Netflix","Amazon Prime"))
+plt.title("Netflix vs Amazon Prime Users")
+plt.show()
+values=[len(netflix-prime),len(prime-netflix),len(netflix&prime)]
+plt.pie(values,labels=["Only Netflix","Only Prime","Both"],
+        autopct="%1.1f%%")
+plt.title("Subscription Distribution")
+plt.show()
+OR
+Q2 [20 Marks] Apply K-Means to Student data using Attendance and Marks with K = 3.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+X=df[["Attendance","Marks"]]
+Xsc=StandardScaler().fit_transform(X)
+model=KMeans(n_clusters=3,n_init=10,random_state=42)
+df["Cluster"]=model.fit_predict(Xsc)
+centers=model.cluster_centers_
+plt.scatter(Xsc[:,0],Xsc[:,1],c=df["Cluster"],cmap="viridis")
+plt.scatter(centers[:,0],centers[:,1],c="red",marker="X",s=150)
+plt.xlabel("Attendance"); plt.ylabel("Marks")
+plt.title("K-Means Clustering (K=3)")
+plt.show()
+print(df[["Attendance","Marks","Cluster"]])

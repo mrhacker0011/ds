@@ -1,0 +1,54 @@
+SLIP 16
+Q1 [10 Marks] Create product data and generate a Dendrogram.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+df = pd.DataFrame({
+    "Product":["P1","P2","P3","P4","P5"],
+    "Price":[250,280,500,520,800],
+    "Rating":[4.1,4.2,4.5,4.6,4.8],
+    "Sales":[120,140,220,240,350]
+})
+Z = linkage(df[["Price","Rating","Sales"]], method="ward")
+dendrogram(Z, labels=df["Product"].tolist())
+plt.title("Product Similarity Dendrogram")
+plt.xlabel("Products"); plt.ylabel("Distance")
+plt.show()
+Q2 [20 Marks] Apply Polynomial Regression to Car Price Prediction data and evaluate R².
+Solution — Q2 (Option A)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+df=pd.read_csv("car data.csv").dropna()
+X=df[["Year","Present_Price","Kms_Driven"]]
+y=df["Selling_Price"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+poly=PolynomialFeatures(degree=2)
+Xtr2=poly.fit_transform(Xtr)
+Xte2=poly.transform(Xte)
+model=LinearRegression().fit(Xtr2,ytr)
+pred=model.predict(Xte2)
+print("R2 Score:",r2_score(yte,pred))
+print("Predicted values:",pred[:5])
+OR
+Q2 [20 Marks] Integrate two mobile DataFrames using Model, then apply Label Encoding and One-Hot Encoding.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+df1=pd.DataFrame({
+ "Brand":["A","B","C"],"Model":["M1","M2","M3"],
+ "Price":[20000,25000,30000],"RAM":[4,6,8]})
+df2=pd.DataFrame({
+ "Model":["M1","M2","M3"],"Storage":[64,128,256],
+ "Battery_Capacity":[4000,4500,5000],
+ "Operating_System":["Android","Android","iOS"]})
+df=pd.merge(df1,df2,on="Model")
+df["Brand"]=LabelEncoder().fit_transform(df["Brand"])
+df=pd.get_dummies(df,columns=["Operating_System"],dtype=int)
+print("DataFrame 1:\n",df1)
+print("\nDataFrame 2:\n",df2)
+print("\nTransformed Data:\n",df)

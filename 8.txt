@@ -1,0 +1,65 @@
+SLIP 8
+Q1 [10 Marks] Create earthquake data and a geospatial visualization using magnitude.
+Solution — Q1
+import pandas as pd
+import folium
+df=pd.DataFrame({
+ "Latitude":[18.52,19.07,20.00,21.15,17.66],
+ "Longitude":[73.85,72.88,73.78,79.09,75.90],
+ "Depth":[10,25,40,15,30],
+ "Magnitude":[3.2,4.5,5.1,3.8,6.0]
+})
+m=folium.Map(location=[19,75],zoom_start=6)
+for _,r in df.iterrows():
+    folium.CircleMarker(
+        [r["Latitude"],r["Longitude"]],
+        radius=4+r["Magnitude"],color="red",
+        fill=True,popup=f"Magnitude: {r['Magnitude']}"
+    ).add_to(m)
+m.save("earthquake_map.html")
+print("Map saved as earthquake_map.html")
+Q2 [20 Marks] Perform Feature Selection and PCA on Loan_application.csv.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+df=pd.DataFrame({
+ "Application_ID":range(1,11),
+ "Age":[22,25,29,31,35,40,42,45,50,55],
+ "Income":[25000,30000,42000,50000,55000,65000,70000,80000,90000,100000],
+ "Credit_Score":[620,650,680,700,720,740,760,780,800,820],
+ "Loan_Amount":[10000,15000,20000,25000,30000,35000,40000,45000,50000,60000],
+ "Employment_Years":[1,2,3,4,5,7,8,10,12,15],
+ "Debt_Ratio":[.5,.45,.4,.38,.35,.3,.28,.25,.22,.2],
+ "Loan_Status":["Rejected","Rejected","Approved","Approved","Approved",
+                "Approved","Approved","Approved","Approved","Approved"]
+})
+X=df.drop(columns=["Application_ID","Loan_Status"])
+y=(df["Loan_Status"]=="Approved").astype(int)
+selected=SelectKBest(chi2,k=3).fit_transform(X,y)
+print("Selected features:\n",selected)
+scaled=StandardScaler().fit_transform(X)
+pca=PCA(n_components=2)
+reduced=pca.fit_transform(scaled)
+print("\nPCA result:\n",reduced)
+print("Explained variance:",pca.explained_variance_ratio_)
+OR
+Q2 [20 Marks] Apply Simple Linear Regression on Salary data and evaluate using MSE.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+df=pd.read_csv("Salary_Data.csv").dropna()
+X=df[["YearsExperience"]]; y=df["Salary"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MSE:",mean_squared_error(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Years of Experience"); plt.ylabel("Salary")
+plt.title("Salary Prediction")
+plt.show()

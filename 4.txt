@@ -1,0 +1,54 @@
+SLIP 4
+Q1 [10 Marks] Create a Pie Chart showing percentage contribution of payment methods.
+Solution — Q1
+import matplotlib.pyplot as plt
+labels = ["UPI","Credit Card","Debit Card","Cash","Net Banking"]
+values = [150,80,60,40,30]
+plt.pie(values, labels=labels, autopct="%1.1f%%", startangle=90)
+plt.title("Percentage Distribution")
+plt.show()
+
+
+Q2 [20 Marks] Apply Logistic Regression to Online Gaming data and evaluate Accuracy, Precision, Recall, F1 and Confusion
+Matrix.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("online_gaming_behavior_dataset.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=LogisticRegression(max_iter=1000).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+OR
+
+Q2 [20 Marks] Apply K-Means to the E-Commerce Customer dataset after preprocessing.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+X=df[["Attendance","Marks"]]
+Xsc=StandardScaler().fit_transform(X)
+model=KMeans(n_clusters=3,n_init=10,random_state=42)
+df["Cluster"]=model.fit_predict(Xsc)
+centers=model.cluster_centers_
+plt.scatter(Xsc[:,0],Xsc[:,1],c=df["Cluster"],cmap="viridis")
+plt.scatter(centers[:,0],centers[:,1],c="red",marker="X",s=150)
+plt.xlabel("Attendance"); plt.ylabel("Marks")
+plt.title("K-Means Clustering (K=3)")
+plt.show()
+print(df[["Attendance","Marks","Cluster"]])

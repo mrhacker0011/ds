@@ -1,0 +1,55 @@
+SLIP 18
+Q1 [10 Marks] Create student performance data, calculate correlation matrix and generate a Heat Map.
+Solution — Q1
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Study Hours":[2,4,5,7,8,10],
+    "Attendance":[60,70,75,85,90,95],
+    "Assignment Score":[55,65,70,80,88,95],
+    "Exam Score":[50,62,68,78,85,92]
+})
+corr = df.corr()
+print(corr)
+sns.heatmap(corr,annot=True,cmap="coolwarm")
+plt.title("Correlation Heat Map")
+plt.show()
+Q2 [20 Marks] Apply Min-Max Scaling, Standardization and Normalization to the given attributes.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
+df = pd.DataFrame({
+    "Temperature":[20,25,30,35,40],
+    "Humidity":[45,50,60,65,70],
+    "WindSpeed":[5,8,10,12,15],
+    "Pressure":[1005,1010,1012,1015,1020],
+    "Rainfall":[10,20,15,30,25]
+})
+print("Original:\n",df)
+print("\nMin-Max:\n",pd.DataFrame(
+    MinMaxScaler().fit_transform(df),columns=df.columns))
+print("\nStandardized:\n",pd.DataFrame(
+    StandardScaler().fit_transform(df),columns=df.columns))
+print("\nNormalized:\n",pd.DataFrame(
+    Normalizer().fit_transform(df),columns=df.columns))
+OR
+Q2 [20 Marks] Apply Apriori to student activities for support 0.2 and 0.3.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Library","Seminar"],["Workshop","Project"],["Library","Assignment"],
+["Seminar","Workshop"],["Assignment","Seminar"],["Workshop","Assignment"],
+["Project","Library"],["Library","Seminar","Project"],
+["Library","Seminar","Workshop"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])

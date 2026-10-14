@@ -1,0 +1,60 @@
+SLIP 19
+Q1 [10 Marks] Integrate student_details and academic_records using Student_ID.
+Solution — Q1
+import pandas as pd
+student_details = pd.DataFrame({
+    "Student_ID":[1,2,3,4],
+    "Name":["Amit","Riya","Neha","Raj"]
+})
+academic_records = pd.DataFrame({
+    "Student_ID":[1,2,3,4],
+    "Marks":[78,88,69,92],
+    "Grade":["B","A","C","A"]
+})
+integrated = pd.merge(student_details,academic_records,on="Student_ID")
+print("Student Details:\n",student_details)
+print("\nAcademic Records:\n",academic_records)
+print("\nIntegrated Data:\n",integrated)
+Q2 [20 Marks] Create city data and generate Treemap and 3D Scatter Plot.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+import squarify
+df=pd.DataFrame({
+ "City":["Pune","Mumbai","Nashik","Nagpur","Kolhapur"],
+ "Area":[331,603,259,228,66],
+ "Temperature":[25,28,24,27,23],
+ "Rainfall":[722,2400,700,1100,900],
+ "Population_Density":[5200,20000,3200,4500,6000]
+})
+squarify.plot(sizes=df["Population_Density"],label=df["City"],alpha=.8)
+plt.title("Population Density Treemap")
+plt.axis("off"); plt.show()
+fig=plt.figure(figsize=(8,5))
+ax=fig.add_subplot(111,projection="3d")
+ax.scatter(df["Area"],df["Temperature"],df["Rainfall"],s=70)
+ax.set_xlabel("Area"); ax.set_ylabel("Temperature"); ax.set_zlabel("Rainfall")
+plt.title("City 3D Scatter Plot")
+plt.show()
+OR
+Q2 [20 Marks] Apply Random Forest Classifier to the Student Grading dataset and evaluate classification metrics.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("Students_Grading_Dataset.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))

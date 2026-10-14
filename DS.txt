@@ -1,0 +1,1578 @@
+
+SLIP 1
+Q1 [10 Marks] Create a DataFrame with Price, Rating and Number of Sales and generate a Dendrogram.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+df = pd.DataFrame({
+    "Product":["P1","P2","P3","P4","P5"],
+    "Price":[250,280,500,520,800],
+    "Rating":[4.1,4.2,4.5,4.6,4.8],
+    "Sales":[120,140,220,240,350]
+})
+Z = linkage(df[["Price","Rating","Sales"]], method="ward")
+dendrogram(Z, labels=df["Product"].tolist())
+plt.title("Product Similarity Dendrogram")
+plt.xlabel("Products"); plt.ylabel("Distance")
+plt.show()
+Q2 [20 Marks] Create Loan_application.csv with at least 10 records and perform Feature Selection and Feature Extraction using
+PCA.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+df=pd.DataFrame({
+ "Application_ID":range(1,11),
+ "Age":[22,25,29,31,35,40,42,45,50,55],
+ "Income":[25000,30000,42000,50000,55000,65000,70000,80000,90000,100000],
+ "Credit_Score":[620,650,680,700,720,740,760,780,800,820],
+ "Loan_Amount":[10000,15000,20000,25000,30000,35000,40000,45000,50000,60000],
+ "Employment_Years":[1,2,3,4,5,7,8,10,12,15],
+ "Debt_Ratio":[.5,.45,.4,.38,.35,.3,.28,.25,.22,.2],
+ "Loan_Status":["Rejected","Rejected","Approved","Approved","Approved",
+                "Approved","Approved","Approved","Approved","Approved"]
+})
+X=df.drop(columns=["Application_ID","Loan_Status"])
+y=(df["Loan_Status"]=="Approved").astype(int)
+selected=SelectKBest(chi2,k=3).fit_transform(X,y)
+print("Selected features:\n",selected)
+scaled=StandardScaler().fit_transform(X)
+pca=PCA(n_components=2)
+reduced=pca.fit_transform(scaled)
+print("\nPCA result:\n",reduced)
+print("Explained variance:",pca.explained_variance_ratio_)
+OR
+Q2 [20 Marks] Apply K-Means clustering on the built-in Iris dataset with K = 3 and display clusters and centroids.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Video Lecture","Quiz"],["Video Lecture","Assignment"],
+["Quiz","Discussion Forum"],["Video Lecture","Quiz","Assignment"],
+["Assignment","Discussion Forum"],["Video Lecture","Certificate"],
+["Quiz","Certificate"],["Video Lecture","Quiz"],
+["Assignment","Certificate"],["Video Lecture","Quiz","Certificate"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+
+
+SLIP 2
+Q1 [10 Marks] Create age_records with Person_ID and Age and perform Equal Width Binning.
+Solution — Q1
+import pandas as pd
+df = pd.DataFrame({
+    "Person_ID": range(1,11),
+    "Age":[18,21,25,29,33,37,42,48,55,63]
+})
+bins = [0,20,30,40,50,100]
+labels = ["0-20","21-30","31-40","41-50","51+"]
+df["Age_Bin"] = pd.cut(df["Age"], bins=bins, labels=labels)
+print("Original and discretized data:")
+print(df)
+Q2 [20 Marks] Apply Linear Regression on the YouTube Video dataset to predict video views and plot the regression line.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+df=pd.read_csv("USvideos.csv").dropna()
+X=df[["likes"]]; y=df["views"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MSE:",mean_squared_error(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Likes"); plt.ylabel("Views")
+plt.title("YouTube Views Prediction")
+plt.show()
+OR
+Q2 [20 Marks] Create the given learning-resource dataset and apply Apriori for minimum support 0.2 and 0.3.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Video Lecture","Quiz"],["Video Lecture","Assignment"],
+["Quiz","Discussion Forum"],["Video Lecture","Quiz","Assignment"],
+["Assignment","Discussion Forum"],["Video Lecture","Certificate"],
+["Quiz","Certificate"],["Video Lecture","Quiz"],
+["Assignment","Certificate"],["Video Lecture","Quiz","Certificate"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+SLIP 3
+Q1 [10 Marks] Create vehicle data including an outlier and use Box Plots for Fuel Efficiency and Engine Power.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Fuel_Efficiency":[18,20,22,21,45],
+    "Engine_Power":[80,95,110,105,250],
+    "Vehicle_Weight":[1100,1200,1300,1250,1500],
+    "Engine_Size":[1.2,1.4,1.6,1.5,3.0],
+    "Acceleration":[12,11,10,10.5,7]
+})
+fig, ax = plt.subplots(1,2,figsize=(9,4))
+ax[0].boxplot(df["Fuel_Efficiency"])
+ax[0].set_title("Fuel Efficiency")
+ax[1].boxplot(df["Engine_Power"])
+ax[1].set_title("Engine Power")
+plt.show()
+Q2 [20 Marks] Use the Salary dataset and Simple Linear Regression to predict salary from years of experience; evaluate using
+MSE.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+df=pd.read_csv("Salary_Data.csv").dropna()
+X=df[["YearsExperience"]]; y=df["Salary"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MSE:",mean_squared_error(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Years of Experience"); plt.ylabel("Salary")
+plt.title("Salary Prediction")
+plt.show()
+OR
+Q2 [20 Marks] Apply Random Forest to the Heart Disease dataset and evaluate using accuracy and confusion matrix.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score,confusion_matrix
+df=pd.read_csv("heart.csv").dropna()
+target="target" if "target" in df.columns else df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=RandomForestClassifier(n_estimators=100,random_state=42)
+model.fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+
+SLIP 4
+Q1 [10 Marks] Create a Pie Chart showing percentage contribution of payment methods.
+Solution — Q1
+import matplotlib.pyplot as plt
+labels = ["UPI","Credit Card","Debit Card","Cash","Net Banking"]
+values = [150,80,60,40,30]
+plt.pie(values, labels=labels, autopct="%1.1f%%", startangle=90)
+plt.title("Percentage Distribution")
+plt.show()
+Q2 [20 Marks] Apply Logistic Regression to Online Gaming data and evaluate Accuracy, Precision, Recall, F1 and Confusion
+Matrix.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("online_gaming_behavior_dataset.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=LogisticRegression(max_iter=1000).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Apply K-Means to the E-Commerce Customer dataset after preprocessing.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+X=df[["Attendance","Marks"]]
+Xsc=StandardScaler().fit_transform(X)
+model=KMeans(n_clusters=3,n_init=10,random_state=42)
+df["Cluster"]=model.fit_predict(Xsc)
+centers=model.cluster_centers_
+plt.scatter(Xsc[:,0],Xsc[:,1],c=df["Cluster"],cmap="viridis")
+plt.scatter(centers[:,0],centers[:,1],c="red",marker="X",s=150)
+plt.xlabel("Attendance"); plt.ylabel("Marks")
+plt.title("K-Means Clustering (K=3)")
+plt.show()
+print(df[["Attendance","Marks","Cluster"]])
+
+
+
+ SLIP 5
+Q1 [10 Marks] Create customer_DataFrame and apply Label Encoding on suitable categorical attributes.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+df = pd.DataFrame({
+    "Customer_ID":[101,102,103,104,105],
+    "Gender":["Male","Female","Female","Male","Female"],
+    "City":["Pune","Mumbai","Nashik","Pune","Mumbai"],
+    "Membership_Type":["Gold","Silver","Gold","Bronze","Silver"]
+})
+print("Before encoding:\n",df)
+for col in ["Gender","City","Membership_Type"]:
+    df[col] = LabelEncoder().fit_transform(df[col])
+print("\nAfter encoding:\n",df)
+Q2 [20 Marks] Create Netflix/Amazon Prime customer data and make a Venn diagram and Pie chart.
+Solution — Q2 (Option A)
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+netflix={"Amit","Riya","Neha","Rahul","Sneha"}
+prime={"Riya","Neha","Karan","Sneha","Vikas"}
+venn2([netflix,prime],set_labels=("Netflix","Amazon Prime"))
+plt.title("Netflix vs Amazon Prime Users")
+plt.show()
+values=[len(netflix-prime),len(prime-netflix),len(netflix&prime)]
+plt.pie(values,labels=["Only Netflix","Only Prime","Both"],
+        autopct="%1.1f%%")
+plt.title("Subscription Distribution")
+plt.show()
+OR
+Q2 [20 Marks] Use KNN on Spambase to classify spam/non-spam and evaluate Accuracy, Confusion Matrix, Precision, Recall
+and F1.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("spambase.csv").dropna()
+X=df.iloc[:,:-1]; y=df.iloc[:,-1]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred))
+print("Recall:",recall_score(yte,pred))
+print("F1:",f1_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+
+SLIP 6
+Q1 [10 Marks] Create car data and plot Engine Size against Fuel Efficiency.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Model":["A","B","C","D","E"],
+    "Engine_Size":[1.2,1.5,2.0,2.5,3.0],
+    "Fuel_Efficiency":[20,18,15,12,10]
+})
+plt.scatter(df["Engine_Size"],df["Fuel_Efficiency"],s=80)
+plt.title("Engine Size vs Fuel Efficiency")
+plt.xlabel("Engine Size (L)")
+plt.ylabel("Fuel Efficiency (km/L)")
+plt.show()
+Q2 [20 Marks] Use Sports Performance data for Simple Linear Regression and evaluate with R².
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+df=pd.read_csv("collegiate_athlete_injury_dataset.csv").dropna()
+X=df[["Training Hours Per Week"]]
+y=df["Performance Score"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("R2 Score:",r2_score(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Training Hours Per Week")
+plt.ylabel("Performance Score")
+plt.title("Training vs Performance")
+plt.show()
+OR
+Q2 [20 Marks] Implement KNN on the Customer dataset and evaluate Accuracy and Confusion Matrix.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("Mall_Customers.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+
+SLIP 7
+Q1 [10 Marks] Create course enrollment data and a Bar Chart.
+Solution — Q1
+import matplotlib.pyplot as plt
+categories = ["BCA","BBA","B.Com","B.Sc","BA"]
+values = [60,45,75,50,35]
+plt.bar(categories, values, color=["red","blue","green","orange","purple"])
+plt.title("Students Enrolled in Courses")
+plt.xlabel("Course"); plt.ylabel("Number of Students")
+plt.show()
+Q2 [20 Marks] Implement KNN on the Student dataset and classify performance categories.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Perform Grocery market basket analysis using Apriori for support 0.3 and 0.4.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Basmati Rice","Toor Dal","Turmeric Powder","Cooking Oil"],
+["Atta","Sugar","Tea","Milk"],
+["Rice","Moong Dal","Salt","Cooking Oil"],
+["Wheat Flour","Chickpeas","Turmeric Powder","Cumin Seeds"],
+["Poha","Peanuts","Onions","Cooking Oil"],
+["Basmati Rice","Paneer","Garam Masala","Tomatoes"],
+["Atta","Potatoes","Onions","Cooking Oil"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.3,.4]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+
+
+SLIP 8
+Q1 [10 Marks] Create earthquake data and a geospatial visualization using magnitude.
+Solution — Q1
+import pandas as pd
+import folium
+df=pd.DataFrame({
+ "Latitude":[18.52,19.07,20.00,21.15,17.66],
+ "Longitude":[73.85,72.88,73.78,79.09,75.90],
+ "Depth":[10,25,40,15,30],
+ "Magnitude":[3.2,4.5,5.1,3.8,6.0]
+})
+m=folium.Map(location=[19,75],zoom_start=6)
+for _,r in df.iterrows():
+    folium.CircleMarker(
+        [r["Latitude"],r["Longitude"]],
+        radius=4+r["Magnitude"],color="red",
+        fill=True,popup=f"Magnitude: {r['Magnitude']}"
+    ).add_to(m)
+m.save("earthquake_map.html")
+print("Map saved as earthquake_map.html")
+Q2 [20 Marks] Perform Feature Selection and PCA on Loan_application.csv.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+df=pd.DataFrame({
+ "Application_ID":range(1,11),
+ "Age":[22,25,29,31,35,40,42,45,50,55],
+ "Income":[25000,30000,42000,50000,55000,65000,70000,80000,90000,100000],
+ "Credit_Score":[620,650,680,700,720,740,760,780,800,820],
+ "Loan_Amount":[10000,15000,20000,25000,30000,35000,40000,45000,50000,60000],
+ "Employment_Years":[1,2,3,4,5,7,8,10,12,15],
+ "Debt_Ratio":[.5,.45,.4,.38,.35,.3,.28,.25,.22,.2],
+ "Loan_Status":["Rejected","Rejected","Approved","Approved","Approved",
+                "Approved","Approved","Approved","Approved","Approved"]
+})
+X=df.drop(columns=["Application_ID","Loan_Status"])
+y=(df["Loan_Status"]=="Approved").astype(int)
+selected=SelectKBest(chi2,k=3).fit_transform(X,y)
+print("Selected features:\n",selected)
+scaled=StandardScaler().fit_transform(X)
+pca=PCA(n_components=2)
+reduced=pca.fit_transform(scaled)
+print("\nPCA result:\n",reduced)
+print("Explained variance:",pca.explained_variance_ratio_)
+OR
+Q2 [20 Marks] Apply Simple Linear Regression on Salary data and evaluate using MSE.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+df=pd.read_csv("Salary_Data.csv").dropna()
+X=df[["YearsExperience"]]; y=df["Salary"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MSE:",mean_squared_error(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Years of Experience"); plt.ylabel("Salary")
+plt.title("Salary Prediction")
+plt.show()
+
+
+SLIP 9
+Q1 [10 Marks] Create course enrollment data and a Bar Chart.
+Solution — Q1
+import matplotlib.pyplot as plt
+categories = ["BCA","BBA","B.Com","B.Sc","BA"]
+values = [60,45,75,50,35]
+plt.bar(categories, values, color=["red","blue","green","orange","purple"])
+plt.title("Students Enrolled in Courses")
+plt.xlabel("Course"); plt.ylabel("Number of Students")
+plt.show()
+Q2 [20 Marks] Implement KNN on the Student dataset and evaluate Accuracy and Confusion Matrix.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Perform Grocery Apriori for minimum support 0.3 and 0.4.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Basmati Rice","Toor Dal","Turmeric Powder","Cooking Oil"],
+["Atta","Sugar","Tea","Milk"],
+["Rice","Moong Dal","Salt","Cooking Oil"],
+["Wheat Flour","Chickpeas","Turmeric Powder","Cumin Seeds"],
+["Poha","Peanuts","Onions","Cooking Oil"],
+["Basmati Rice","Paneer","Garam Masala","Tomatoes"],
+["Atta","Potatoes","Onions","Cooking Oil"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.3,.4]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+
+
+SLIP 10
+Q1 [10 Marks] Create earthquake data and a geospatial visualization.
+Solution — Q1
+import pandas as pd
+import folium
+df=pd.DataFrame({
+ "Latitude":[18.52,19.07,20.00,21.15,17.66],
+ "Longitude":[73.85,72.88,73.78,79.09,75.90],
+ "Depth":[10,25,40,15,30],
+ "Magnitude":[3.2,4.5,5.1,3.8,6.0]
+})
+m=folium.Map(location=[19,75],zoom_start=6)
+for _,r in df.iterrows():
+    folium.CircleMarker(
+        [r["Latitude"],r["Longitude"]],
+        radius=4+r["Magnitude"],color="red",
+        fill=True,popup=f"Magnitude: {r['Magnitude']}"
+    ).add_to(m)
+m.save("earthquake_map.html")
+print("Map saved as earthquake_map.html")
+Q2 [20 Marks] Perform Feature Selection and PCA on Loan_application.csv.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+df=pd.DataFrame({
+ "Application_ID":range(1,11),
+ "Age":[22,25,29,31,35,40,42,45,50,55],
+ "Income":[25000,30000,42000,50000,55000,65000,70000,80000,90000,100000],
+ "Credit_Score":[620,650,680,700,720,740,760,780,800,820],
+ "Loan_Amount":[10000,15000,20000,25000,30000,35000,40000,45000,50000,60000],
+ "Employment_Years":[1,2,3,4,5,7,8,10,12,15],
+ "Debt_Ratio":[.5,.45,.4,.38,.35,.3,.28,.25,.22,.2],
+ "Loan_Status":["Rejected","Rejected","Approved","Approved","Approved",
+                "Approved","Approved","Approved","Approved","Approved"]
+})
+X=df.drop(columns=["Application_ID","Loan_Status"])
+y=(df["Loan_Status"]=="Approved").astype(int)
+selected=SelectKBest(chi2,k=3).fit_transform(X,y)
+print("Selected features:\n",selected)
+scaled=StandardScaler().fit_transform(X)
+pca=PCA(n_components=2)
+reduced=pca.fit_transform(scaled)
+print("\nPCA result:\n",reduced)
+print("Explained variance:",pca.explained_variance_ratio_)
+OR
+Q2 [20 Marks] Apply Simple Linear Regression on Salary data and evaluate using MSE.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+df=pd.read_csv("Salary_Data.csv").dropna()
+X=df[["YearsExperience"]]; y=df["Salary"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MSE:",mean_squared_error(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Years of Experience"); plt.ylabel("Salary")
+plt.title("Salary Prediction")
+plt.show()
+
+
+
+
+SLIP 11
+Q1 [10 Marks] Apply Min-Max Scaling to a product DataFrame.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+df = pd.DataFrame({
+    "Product_ID":[1,2,3,4,5],
+    "Price":[100,250,400,150,500],
+    "Quantity_Sold":[20,35,50,25,60],
+    "Discount":[5,10,15,0,20],
+    "Revenue":[1900,8000,17000,3750,24000]
+})
+cols = ["Price","Quantity_Sold","Discount","Revenue"]
+df[cols] = MinMaxScaler().fit_transform(df[cols])
+print(df)
+Q2 [20 Marks] Apply Logistic Regression to classify smartphones into price categories.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,f1_score,confusion_matrix
+df=pd.read_csv("train.csv").dropna()
+target="price_range" if "price_range" in df.columns else df.columns[-1]
+X=df.drop(columns=[target]); y=df[target]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=LogisticRegression(max_iter=1000).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("F1 Score:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Create book data, compare authors by publication period using a Venn diagram and generate a Word Cloud.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+from wordcloud import WordCloud
+df=pd.DataFrame({
+ "Book Title":["Data Science","Python Basics","AI Guide",
+               "ML Handbook","Python Projects","Deep Learning"],
+ "Author":["A","B","C","A","B","D"],
+ "Publication Year":[2010,2012,2016,2018,2020,2022],
+ "Average Rating":[4.1,4.2,4.5,4.6,4.4,4.7],
+ "Number of Ratings":[500,600,800,900,700,1000]
+})
+old=set(df[df["Publication Year"]<2017]["Author"])
+new=set(df[df["Publication Year"]>=2017]["Author"])
+venn2([old,new],set_labels=("Older","Newer"))
+plt.title("Authors by Publication Period"); plt.show()
+text=" ".join(df["Book Title"])
+wc=WordCloud(width=800,height=400,
+             background_color="white").generate(text)
+plt.imshow(wc,interpolation="bilinear"); plt.axis("off")
+plt.title("Book Titles Word Cloud"); plt.show()
+
+
+SLIP 12
+Q1 [10 Marks] Create a transportation preference Pie Chart.
+Solution — Q1
+import matplotlib.pyplot as plt
+labels = ["Train","Bicycle","Bike","Car","Bus"]
+values = [220,60,70,80,40]
+plt.pie(values, labels=labels, autopct="%1.1f%%", startangle=90)
+plt.title("Employee Transportation Preferences")
+plt.show()
+Q2 [20 Marks] Use the housing dataset with Random Forest Regression and evaluate MAE, RMSE and R².
+Solution — Q2 (Option A)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error,mean_squared_error,r2_score
+df=pd.read_csv("housing.csv").dropna()
+target="median_house_value" if "median_house_value" in df else df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=RandomForestRegressor(n_estimators=100,random_state=42)
+model.fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MAE:",mean_absolute_error(yte,pred))
+print("RMSE:",np.sqrt(mean_squared_error(yte,pred)))
+print("R2:",r2_score(yte,pred))
+OR
+Q2 [20 Marks] Apply Apriori to the given learning-resource dataset for support 0.3 and 0.4.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Video Lecture","Quiz"],["Video Lecture","Assignment"],
+["Quiz","Discussion Forum"],["Video Lecture","Quiz","Assignment"],
+["Assignment","Discussion Forum"],["Video Lecture","Certificate"],
+["Quiz","Certificate"],["Video Lecture","Quiz"],
+["Assignment","Certificate"],["Video Lecture","Quiz","Certificate"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+
+
+SLIP 13
+Q1 [10 Marks] Create a bar chart showing employees by department.
+Solution — Q1
+import matplotlib.pyplot as plt
+departments = ["HR","Finance","IT","Sales","Marketing"]
+employees = [25,35,80,55,40]
+plt.bar(departments, employees)
+plt.title("Employees by Department")
+plt.xlabel("Department"); plt.ylabel("Employees")
+plt.show()
+Q2 [20 Marks] Apply Logistic Regression to classify smartphones into price categories.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,f1_score,confusion_matrix
+df=pd.read_csv("train.csv").dropna()
+target="price_range" if "price_range" in df.columns else df.columns[-1]
+X=df.drop(columns=[target]); y=df[target]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=LogisticRegression(max_iter=1000).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("F1 Score:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Apply K-Means to the E-Commerce Customer dataset.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+X=df[["Attendance","Marks"]]
+Xsc=StandardScaler().fit_transform(X)
+model=KMeans(n_clusters=3,n_init=10,random_state=42)
+df["Cluster"]=model.fit_predict(Xsc)
+centers=model.cluster_centers_
+plt.scatter(Xsc[:,0],Xsc[:,1],c=df["Cluster"],cmap="viridis")
+plt.scatter(centers[:,0],centers[:,1],c="red",marker="X",s=150)
+plt.xlabel("Attendance"); plt.ylabel("Marks")
+plt.title("K-Means Clustering (K=3)")
+plt.show()
+print(df[["Attendance","Marks","Cluster"]])
+
+
+
+
+SLIP 14
+Q1 [10 Marks] Load titanic.csv and create a passenger-class histogram and survival Pie Chart.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df=pd.read_csv("titanic.csv")
+df["Pclass"].value_counts().sort_index().plot(kind="bar")
+plt.title("Passengers by Class")
+plt.xlabel("Passenger Class"); plt.ylabel("Passengers")
+plt.show()
+df["Survived"].value_counts().plot(kind="pie",autopct="%1.1f%%")
+plt.title("Survival Distribution"); plt.ylabel("")
+plt.show()
+Q2 [20 Marks] Apply Polynomial Regression to predict song popularity and evaluate MAE, RMSE and R².
+Solution — Q2 (Option A)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error,mean_squared_error,r2_score
+df=pd.read_csv("Spotify -Raw Data.csv").dropna()
+X=df[["danceability","energy","tempo"]]
+y=df["popularity"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+poly=PolynomialFeatures(degree=2)
+Xtr=poly.fit_transform(Xtr); Xte=poly.transform(Xte)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MAE:",mean_absolute_error(yte,pred))
+print("RMSE:",np.sqrt(mean_squared_error(yte,pred)))
+print("R2:",r2_score(yte,pred))
+OR
+Q2 [20 Marks] Use KNN on Spambase to classify spam/non-spam and evaluate classification metrics.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("spambase.csv").dropna()
+X=df.iloc[:,:-1]; y=df.iloc[:,-1]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred))
+print("Recall:",recall_score(yte,pred))
+print("F1:",f1_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+
+SLIP 15
+Q1 [10 Marks] Create a sales DataFrame from sales.csv and use a Box Plot to identify outliers.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df=pd.read_csv("sales.csv")
+sales=pd.to_numeric(df["Sales"],errors="coerce").dropna()
+plt.boxplot(sales)
+plt.title("Daily Sales Box Plot")
+plt.ylabel("Sales")
+plt.show()
+Q2 [20 Marks] Apply KNN to the Wine dataset and evaluate Accuracy, Precision, Recall and F1.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("Wine.csv").dropna()
+X=df.iloc[:,:-1]; y=df.iloc[:,-1]
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred))
+print("Recall:",recall_score(yte,pred))
+print("F1:",f1_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+OR
+Q2 [20 Marks] Apply Logistic Regression to Online Gaming data and evaluate classification metrics.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("online_gaming_behavior_dataset.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=LogisticRegression(max_iter=1000).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+SLIP 16
+Q1 [10 Marks] Create product data and generate a Dendrogram.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+df = pd.DataFrame({
+    "Product":["P1","P2","P3","P4","P5"],
+    "Price":[250,280,500,520,800],
+    "Rating":[4.1,4.2,4.5,4.6,4.8],
+    "Sales":[120,140,220,240,350]
+})
+Z = linkage(df[["Price","Rating","Sales"]], method="ward")
+dendrogram(Z, labels=df["Product"].tolist())
+plt.title("Product Similarity Dendrogram")
+plt.xlabel("Products"); plt.ylabel("Distance")
+plt.show()
+Q2 [20 Marks] Apply Polynomial Regression to Car Price Prediction data and evaluate R².
+Solution — Q2 (Option A)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+df=pd.read_csv("car data.csv").dropna()
+X=df[["Year","Present_Price","Kms_Driven"]]
+y=df["Selling_Price"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+poly=PolynomialFeatures(degree=2)
+Xtr2=poly.fit_transform(Xtr)
+Xte2=poly.transform(Xte)
+model=LinearRegression().fit(Xtr2,ytr)
+pred=model.predict(Xte2)
+print("R2 Score:",r2_score(yte,pred))
+print("Predicted values:",pred[:5])
+OR
+Q2 [20 Marks] Integrate two mobile DataFrames using Model, then apply Label Encoding and One-Hot Encoding.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+df1=pd.DataFrame({
+ "Brand":["A","B","C"],"Model":["M1","M2","M3"],
+ "Price":[20000,25000,30000],"RAM":[4,6,8]})
+df2=pd.DataFrame({
+ "Model":["M1","M2","M3"],"Storage":[64,128,256],
+ "Battery_Capacity":[4000,4500,5000],
+ "Operating_System":["Android","Android","iOS"]})
+df=pd.merge(df1,df2,on="Model")
+df["Brand"]=LabelEncoder().fit_transform(df["Brand"])
+df=pd.get_dummies(df,columns=["Operating_System"],dtype=int)
+print("DataFrame 1:\n",df1)
+print("\nDataFrame 2:\n",df2)
+print("\nTransformed Data:\n",df)
+
+
+
+
+
+SLIP 17
+Q1 [10 Marks] Create age_records and perform Equal Frequency Binning.
+Solution — Q1
+import pandas as pd
+df = pd.DataFrame({
+    "Person_ID": range(1,11),
+    "Age":[18,21,25,29,33,37,42,48,55,63]
+})
+df["Age_Bin"] = pd.qcut(df["Age"], q=4,
+                        labels=["Q1","Q2","Q3","Q4"])
+print(df)
+Q2 [20 Marks] Create city data, a population Treemap and a 3D Scatter Plot.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+import squarify
+df=pd.DataFrame({
+ "City":["Pune","Mumbai","Nashik","Nagpur","Kolhapur"],
+ "Area":[331,603,259,228,66],
+ "Temperature":[25,28,24,27,23],
+ "Rainfall":[722,2400,700,1100,900],
+ "Population_Density":[5200,20000,3200,4500,6000]
+})
+squarify.plot(sizes=df["Population_Density"],label=df["City"],alpha=.8)
+plt.title("Population Density Treemap")
+plt.axis("off"); plt.show()
+fig=plt.figure(figsize=(8,5))
+ax=fig.add_subplot(111,projection="3d")
+ax.scatter(df["Area"],df["Temperature"],df["Rainfall"],s=70)
+ax.set_xlabel("Area"); ax.set_ylabel("Temperature"); ax.set_zlabel("Rainfall")
+plt.title("City 3D Scatter Plot")
+plt.show()
+OR
+Q2 [20 Marks] Perform Grocery Apriori for support 0.3 and 0.4.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Basmati Rice","Toor Dal","Turmeric Powder","Cooking Oil"],
+["Atta","Sugar","Tea","Milk"],
+["Rice","Moong Dal","Salt","Cooking Oil"],
+["Wheat Flour","Chickpeas","Turmeric Powder","Cumin Seeds"],
+["Poha","Peanuts","Onions","Cooking Oil"],
+["Basmati Rice","Paneer","Garam Masala","Tomatoes"],
+["Atta","Potatoes","Onions","Cooking Oil"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.3,.4]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+SLIP 18
+Q1 [10 Marks] Create student performance data, calculate correlation matrix and generate a Heat Map.
+Solution — Q1
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Study Hours":[2,4,5,7,8,10],
+    "Attendance":[60,70,75,85,90,95],
+    "Assignment Score":[55,65,70,80,88,95],
+    "Exam Score":[50,62,68,78,85,92]
+})
+corr = df.corr()
+print(corr)
+sns.heatmap(corr,annot=True,cmap="coolwarm")
+plt.title("Correlation Heat Map")
+plt.show()
+Q2 [20 Marks] Apply Min-Max Scaling, Standardization and Normalization to the given attributes.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
+df = pd.DataFrame({
+    "Temperature":[20,25,30,35,40],
+    "Humidity":[45,50,60,65,70],
+    "WindSpeed":[5,8,10,12,15],
+    "Pressure":[1005,1010,1012,1015,1020],
+    "Rainfall":[10,20,15,30,25]
+})
+print("Original:\n",df)
+print("\nMin-Max:\n",pd.DataFrame(
+    MinMaxScaler().fit_transform(df),columns=df.columns))
+print("\nStandardized:\n",pd.DataFrame(
+    StandardScaler().fit_transform(df),columns=df.columns))
+print("\nNormalized:\n",pd.DataFrame(
+    Normalizer().fit_transform(df),columns=df.columns))
+OR
+Q2 [20 Marks] Apply Apriori to student activities for support 0.2 and 0.3.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Library","Seminar"],["Workshop","Project"],["Library","Assignment"],
+["Seminar","Workshop"],["Assignment","Seminar"],["Workshop","Assignment"],
+["Project","Library"],["Library","Seminar","Project"],
+["Library","Seminar","Workshop"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+
+
+SLIP 19
+Q1 [10 Marks] Integrate student_details and academic_records using Student_ID.
+Solution — Q1
+import pandas as pd
+student_details = pd.DataFrame({
+    "Student_ID":[1,2,3,4],
+    "Name":["Amit","Riya","Neha","Raj"]
+})
+academic_records = pd.DataFrame({
+    "Student_ID":[1,2,3,4],
+    "Marks":[78,88,69,92],
+    "Grade":["B","A","C","A"]
+})
+integrated = pd.merge(student_details,academic_records,on="Student_ID")
+print("Student Details:\n",student_details)
+print("\nAcademic Records:\n",academic_records)
+print("\nIntegrated Data:\n",integrated)
+Q2 [20 Marks] Create city data and generate Treemap and 3D Scatter Plot.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+import squarify
+df=pd.DataFrame({
+ "City":["Pune","Mumbai","Nashik","Nagpur","Kolhapur"],
+ "Area":[331,603,259,228,66],
+ "Temperature":[25,28,24,27,23],
+ "Rainfall":[722,2400,700,1100,900],
+ "Population_Density":[5200,20000,3200,4500,6000]
+})
+squarify.plot(sizes=df["Population_Density"],label=df["City"],alpha=.8)
+plt.title("Population Density Treemap")
+plt.axis("off"); plt.show()
+fig=plt.figure(figsize=(8,5))
+ax=fig.add_subplot(111,projection="3d")
+ax.scatter(df["Area"],df["Temperature"],df["Rainfall"],s=70)
+ax.set_xlabel("Area"); ax.set_ylabel("Temperature"); ax.set_zlabel("Rainfall")
+plt.title("City 3D Scatter Plot")
+plt.show()
+OR
+Q2 [20 Marks] Apply Random Forest Classifier to the Student Grading dataset and evaluate classification metrics.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("Students_Grading_Dataset.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+
+SLIP 20
+Q1 [10 Marks] Clean employee data by handling missing values, duplicates and IQR outliers.
+Solution — Q1
+import pandas as pd
+df=pd.DataFrame({
+ "Emp_ID":[1,2,3,3,4,5],
+ "Age":[22,25,None,25,32,55],
+ "Dept":["IT","HR","IT","IT","Sales","IT"],
+ "Years_Experience":[1,3,5,5,7,30],
+ "Performance_Rating":[3,4,4,4,5,5]
+})
+df["Age"]=df["Age"].fillna(df["Age"].median())
+df=df.drop_duplicates()
+q1=df["Years_Experience"].quantile(.25)
+q3=df["Years_Experience"].quantile(.75)
+iqr=q3-q1
+out=df[(df["Years_Experience"]<q1-1.5*iqr) |
+       (df["Years_Experience"]>q3+1.5*iqr)]
+print("Cleaned data:\n",df)
+print("\nOutliers:\n",out)
+Q2 [20 Marks] Use World Cities data for a geospatial map and population Treemap.
+Solution — Q2 (Option A)
+import pandas as pd
+import folium
+import matplotlib.pyplot as plt
+import squarify
+df=pd.read_csv("worldcities.csv").dropna(
+    subset=["lat","lng","population"])
+m=folium.Map(location=[20,0],zoom_start=2)
+for _,r in df.head(100).iterrows():
+    folium.CircleMarker(
+        [r["lat"],r["lng"]],radius=5,
+        popup=r["city"],fill=True).add_to(m)
+m.save("world_cities_map.html")
+top=df.nlargest(15,"population")
+squarify.plot(sizes=top["population"],label=top["city"],alpha=.8)
+plt.title("Population Treemap"); plt.axis("off"); plt.show()
+OR
+Q2 [20 Marks] Use Crop Yield data for Simple Linear Regression from rainfall and evaluate MAE and R².
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error,r2_score
+df=pd.read_csv("crop_yield_data.csv").dropna()
+rain=[c for c in df.columns if "rain" in c.lower()][0]
+target=[c for c in df.columns if "yield" in c.lower()][0]
+X=df[[rain]]; y=df[target]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+model=LinearRegression().fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("MAE:",mean_absolute_error(yte,pred))
+print("R2:",r2_score(yte,pred))
+plt.scatter(Xte,yte)
+plt.plot(Xte,pred,color="red")
+plt.xlabel("Rainfall"); plt.ylabel("Crop Yield")
+plt.title("Rainfall vs Crop Yield")
+plt.show()
+
+
+
+
+
+SLIP 21
+Q1 [10 Marks] Create vehicle data with an outlier and use Box Plots.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Fuel_Efficiency":[18,20,22,21,45],
+    "Engine_Power":[80,95,110,105,250],
+    "Vehicle_Weight":[1100,1200,1300,1250,1500],
+    "Engine_Size":[1.2,1.4,1.6,1.5,3.0],
+    "Acceleration":[12,11,10,10.5,7]
+})
+fig, ax = plt.subplots(1,2,figsize=(9,4))
+ax[0].boxplot(df["Fuel_Efficiency"])
+ax[0].set_title("Fuel Efficiency")
+ax[1].boxplot(df["Engine_Power"])
+ax[1].set_title("Engine Power")
+plt.show()
+Q2 [20 Marks] Apply Min-Max Scaling, Standardization and Normalization.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
+df = pd.DataFrame({
+    "Temperature":[20,25,30,35,40],
+    "Humidity":[45,50,60,65,70],
+    "WindSpeed":[5,8,10,12,15],
+    "Pressure":[1005,1010,1012,1015,1020],
+    "Rainfall":[10,20,15,30,25]
+})
+print("Original:\n",df)
+print("\nMin-Max:\n",pd.DataFrame(
+    MinMaxScaler().fit_transform(df),columns=df.columns))
+print("\nStandardized:\n",pd.DataFrame(
+    StandardScaler().fit_transform(df),columns=df.columns))
+print("\nNormalized:\n",pd.DataFrame(
+    Normalizer().fit_transform(df),columns=df.columns))
+OR
+Q2 [20 Marks] Apply Random Forest Classification to Heart Disease data and evaluate classification metrics.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score,confusion_matrix
+df=pd.read_csv("heart.csv").dropna()
+target="target" if "target" in df.columns else df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=RandomForestClassifier(n_estimators=100,random_state=42)
+model.fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+SLIP 22
+Q1 [10 Marks] Standardize Age, Salary, Experience, Working Hours and Performance Score.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+df = pd.DataFrame({
+    "Age":[22,25,28,31,35],
+    "Salary":[25000,32000,40000,48000,60000],
+    "Experience":[1,3,5,7,10],
+    "Working_Hours":[40,42,45,44,46],
+    "Performance_Score":[60,68,75,82,90]
+})
+df[df.columns] = StandardScaler().fit_transform(df)
+print(df)
+Q2 [20 Marks] Create book data, Venn diagram by publication period and Word Cloud.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+from wordcloud import WordCloud
+df=pd.DataFrame({
+ "Book Title":["Data Science","Python Basics","AI Guide",
+               "ML Handbook","Python Projects","Deep Learning"],
+ "Author":["A","B","C","A","B","D"],
+ "Publication Year":[2010,2012,2016,2018,2020,2022],
+ "Average Rating":[4.1,4.2,4.5,4.6,4.4,4.7],
+ "Number of Ratings":[500,600,800,900,700,1000]
+})
+old=set(df[df["Publication Year"]<2017]["Author"])
+new=set(df[df["Publication Year"]>=2017]["Author"])
+venn2([old,new],set_labels=("Older","Newer"))
+plt.title("Authors by Publication Period"); plt.show()
+text=" ".join(df["Book Title"])
+wc=WordCloud(width=800,height=400,
+             background_color="white").generate(text)
+plt.imshow(wc,interpolation="bilinear"); plt.axis("off")
+plt.title("Book Titles Word Cloud"); plt.show()
+OR
+Q2 [20 Marks] Apply Apriori to student activities for support 0.2 and 0.3.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Library","Seminar"],["Workshop","Project"],["Library","Assignment"],
+["Seminar","Workshop"],["Assignment","Seminar"],["Workshop","Assignment"],
+["Project","Library"],["Library","Seminar","Project"],
+["Library","Seminar","Workshop"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
+
+
+
+SLIP 23
+Q1 [10 Marks] Create weather data and a correlation Heat Map.
+Solution — Q1
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+df = pd.DataFrame({
+    "Study Hours":[2,4,5,7,8,10],
+    "Attendance":[60,70,75,85,90,95],
+    "Assignment Score":[55,65,70,80,88,95],
+    "Exam Score":[50,62,68,78,85,92]
+})
+corr = df.corr()
+print(corr)
+sns.heatmap(corr,annot=True,cmap="coolwarm")
+plt.title("Correlation Heat Map")
+plt.show()
+Q2 [20 Marks] Apply K-Means on Student data using Attendance and Marks with K = 3.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+X=df[["Attendance","Marks"]]
+Xsc=StandardScaler().fit_transform(X)
+model=KMeans(n_clusters=3,n_init=10,random_state=42)
+df["Cluster"]=model.fit_predict(Xsc)
+centers=model.cluster_centers_
+plt.scatter(Xsc[:,0],Xsc[:,1],c=df["Cluster"],cmap="viridis")
+plt.scatter(centers[:,0],centers[:,1],c="red",marker="X",s=150)
+plt.xlabel("Attendance"); plt.ylabel("Marks")
+plt.title("K-Means Clustering (K=3)")
+plt.show()
+print(df[["Attendance","Marks","Cluster"]])
+OR
+Q2 [20 Marks] Perform Feature Selection and PCA on Loan_application.csv.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.feature_selection import SelectKBest,chi2
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+df=pd.DataFrame({
+ "Application_ID":range(1,11),
+ "Age":[22,25,29,31,35,40,42,45,50,55],
+ "Income":[25000,30000,42000,50000,55000,65000,70000,80000,90000,100000],
+ "Credit_Score":[620,650,680,700,720,740,760,780,800,820],
+ "Loan_Amount":[10000,15000,20000,25000,30000,35000,40000,45000,50000,60000],
+ "Employment_Years":[1,2,3,4,5,7,8,10,12,15],
+ "Debt_Ratio":[.5,.45,.4,.38,.35,.3,.28,.25,.22,.2],
+ "Loan_Status":["Rejected","Rejected","Approved","Approved","Approved",
+                "Approved","Approved","Approved","Approved","Approved"]
+})
+X=df.drop(columns=["Application_ID","Loan_Status"])
+y=(df["Loan_Status"]=="Approved").astype(int)
+selected=SelectKBest(chi2,k=3).fit_transform(X,y)
+print("Selected features:\n",selected)
+scaled=StandardScaler().fit_transform(X)
+pca=PCA(n_components=2)
+reduced=pca.fit_transform(scaled)
+print("\nPCA result:\n",reduced)
+print("Explained variance:",pca.explained_variance_ratio_)
+
+
+
+
+SLIP 24
+Q1 [10 Marks] Normalize House_Area, Number_of_Rooms and Monthly_Rent.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+df = pd.DataFrame({
+    "City":["Pune","Mumbai","Nashik","Nagpur","Kolhapur"],
+    "House_Type":["Flat","Flat","House","Flat","House"],
+    "House_Area":[600,800,900,700,1000],
+    "Number_of_Rooms":[2,3,3,2,4],
+    "Monthly_Rent":[12000,18000,15000,10000,16000]
+})
+cols=["House_Area","Number_of_Rooms","Monthly_Rent"]
+df[cols]=MinMaxScaler().fit_transform(df[cols])
+print(df)
+Q2 [20 Marks] Create Netflix/Amazon Prime customer data and make a Venn diagram and Pie chart.
+Solution — Q2 (Option A)
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+netflix={"Amit","Riya","Neha","Rahul","Sneha"}
+prime={"Riya","Neha","Karan","Sneha","Vikas"}
+venn2([netflix,prime],set_labels=("Netflix","Amazon Prime"))
+plt.title("Netflix vs Amazon Prime Users")
+plt.show()
+values=[len(netflix-prime),len(prime-netflix),len(netflix&prime)]
+plt.pie(values,labels=["Only Netflix","Only Prime","Both"],
+        autopct="%1.1f%%")
+plt.title("Subscription Distribution")
+plt.show()
+OR
+Q2 [20 Marks] Apply K-Means to Student data using Attendance and Marks with K = 3.
+Solution — Q2 (Option B)
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+df=pd.read_csv("student_dataset_v2.csv").dropna()
+X=df[["Attendance","Marks"]]
+Xsc=StandardScaler().fit_transform(X)
+model=KMeans(n_clusters=3,n_init=10,random_state=42)
+df["Cluster"]=model.fit_predict(Xsc)
+centers=model.cluster_centers_
+plt.scatter(Xsc[:,0],Xsc[:,1],c=df["Cluster"],cmap="viridis")
+plt.scatter(centers[:,0],centers[:,1],c="red",marker="X",s=150)
+plt.xlabel("Attendance"); plt.ylabel("Marks")
+plt.title("K-Means Clustering (K=3)")
+plt.show()
+print(df[["Attendance","Marks","Cluster"]])
+
+
+
+
+SLIP 25
+Q1 [10 Marks] Create product data and generate a Dendrogram.
+Solution — Q1
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.cluster.hierarchy import dendrogram, linkage
+df = pd.DataFrame({
+    "Product":["P1","P2","P3","P4","P5"],
+    "Price":[250,280,500,520,800],
+    "Rating":[4.1,4.2,4.5,4.6,4.8],
+    "Sales":[120,140,220,240,350]
+})
+Z = linkage(df[["Price","Rating","Sales"]], method="ward")
+dendrogram(Z, labels=df["Product"].tolist())
+plt.title("Product Similarity Dendrogram")
+plt.xlabel("Products"); plt.ylabel("Distance")
+plt.show()
+Q2 [20 Marks] Apply Min-Max Scaling, Standardization and Normalization.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, Normalizer
+df = pd.DataFrame({
+    "Temperature":[20,25,30,35,40],
+    "Humidity":[45,50,60,65,70],
+    "WindSpeed":[5,8,10,12,15],
+    "Pressure":[1005,1010,1012,1015,1020],
+    "Rainfall":[10,20,15,30,25]
+})
+print("Original:\n",df)
+print("\nMin-Max:\n",pd.DataFrame(
+    MinMaxScaler().fit_transform(df),columns=df.columns))
+print("\nStandardized:\n",pd.DataFrame(
+    StandardScaler().fit_transform(df),columns=df.columns))
+print("\nNormalized:\n",pd.DataFrame(
+    Normalizer().fit_transform(df),columns=df.columns))
+OR
+Q2 [20 Marks] Apply KNN to Student Grading data and evaluate Accuracy, Precision, Recall, F1 and Confusion Matrix.
+Solution — Q2 (Option B)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix
+df=pd.read_csv("Students_Grading_Dataset.csv").dropna()
+target=df.columns[-1]
+X=pd.get_dummies(df.drop(columns=[target]),drop_first=True)
+y=df[target].astype("category").cat.codes
+X=StandardScaler().fit_transform(X)
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,
+                                  random_state=42,stratify=y)
+model=KNeighborsClassifier(n_neighbors=5).fit(Xtr,ytr)
+pred=model.predict(Xte)
+print("Accuracy:",accuracy_score(yte,pred))
+print("Precision:",precision_score(yte,pred,average="weighted"))
+print("Recall:",recall_score(yte,pred,average="weighted"))
+print("F1:",f1_score(yte,pred,average="weighted"))
+print("Confusion Matrix:\n",confusion_matrix(yte,pred))
+
+
+
+SLIP 26
+Q1 [10 Marks] Create book_records and perform Equal Width Binning on Book_Price.
+Solution — Q1
+import pandas as pd
+df = pd.DataFrame({
+    "Person_ID": range(1,11),
+    "Age":[18,21,25,29,33,37,42,48,55,63]
+})
+bins = [0,20,30,40,50,100]
+labels = ["0-20","21-30","31-40","41-50","51+"]
+df["Age_Bin"] = pd.cut(df["Age"], bins=bins, labels=labels)
+print("Original and discretized data:")
+print(df)
+Q2 [20 Marks] Use World Cities data for a geospatial map and population Treemap.
+Solution — Q2 (Option A)
+import pandas as pd
+import folium
+import matplotlib.pyplot as plt
+import squarify
+df=pd.read_csv("worldcities.csv").dropna(
+    subset=["lat","lng","population"])
+m=folium.Map(location=[20,0],zoom_start=2)
+for _,r in df.head(100).iterrows():
+    folium.CircleMarker(
+        [r["lat"],r["lng"]],radius=5,
+        popup=r["city"],fill=True).add_to(m)
+m.save("world_cities_map.html")
+top=df.nlargest(15,"population")
+squarify.plot(sizes=top["population"],label=top["city"],alpha=.8)
+plt.title("Population Treemap"); plt.axis("off"); plt.show()
+OR
+Q2 [20 Marks] Apply Polynomial Regression to Car Price Prediction data and evaluate R².
+Solution — Q2 (Option B)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+df=pd.read_csv("car data.csv").dropna()
+X=df[["Year","Present_Price","Kms_Driven"]]
+y=df["Selling_Price"]
+Xtr,Xte,ytr,yte=train_test_split(X,y,test_size=.2,random_state=42)
+poly=PolynomialFeatures(degree=2)
+Xtr2=poly.fit_transform(Xtr)
+Xte2=poly.transform(Xte)
+model=LinearRegression().fit(Xtr2,ytr)
+pred=model.predict(Xte2)
+print("R2 Score:",r2_score(yte,pred))
+print("Predicted values:",pred[:5])
+
+
+
+SLIP 27
+Q1 [10 Marks] Create course enrollment data and a Bar Chart.
+Solution — Q1
+import matplotlib.pyplot as plt
+categories = ["BCA","BBA","B.Com","B.Sc","BA"]
+values = [60,45,75,50,35]
+plt.bar(categories, values, color=["red","blue","green","orange","purple"])
+plt.title("Students Enrolled in Courses")
+plt.xlabel("Course"); plt.ylabel("Number of Students")
+plt.show()
+Q2 [20 Marks] Integrate two mobile DataFrames using Model and apply Label Encoding and One-Hot Encoding.
+Solution — Q2 (Option A)
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+df1=pd.DataFrame({
+ "Brand":["A","B","C"],"Model":["M1","M2","M3"],
+ "Price":[20000,25000,30000],"RAM":[4,6,8]})
+df2=pd.DataFrame({
+ "Model":["M1","M2","M3"],"Storage":[64,128,256],
+ "Battery_Capacity":[4000,4500,5000],
+ "Operating_System":["Android","Android","iOS"]})
+df=pd.merge(df1,df2,on="Model")
+df["Brand"]=LabelEncoder().fit_transform(df["Brand"])
+df=pd.get_dummies(df,columns=["Operating_System"],dtype=int)
+print("DataFrame 1:\n",df1)
+print("\nDataFrame 2:\n",df2)
+print("\nTransformed Data:\n",df)
+OR
+Q2 [20 Marks] Perform Grocery Apriori for support 0.3 and 0.4.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Basmati Rice","Toor Dal","Turmeric Powder","Cooking Oil"],
+["Atta","Sugar","Tea","Milk"],
+["Rice","Moong Dal","Salt","Cooking Oil"],
+["Wheat Flour","Chickpeas","Turmeric Powder","Cumin Seeds"],
+["Poha","Peanuts","Onions","Cooking Oil"],
+["Basmati Rice","Paneer","Garam Masala","Tomatoes"],
+["Atta","Potatoes","Onions","Cooking Oil"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.3,.4]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])

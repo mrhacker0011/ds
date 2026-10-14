@@ -1,0 +1,58 @@
+SLIP 22
+Q1 [10 Marks] Standardize Age, Salary, Experience, Working Hours and Performance Score.
+Solution — Q1
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+df = pd.DataFrame({
+    "Age":[22,25,28,31,35],
+    "Salary":[25000,32000,40000,48000,60000],
+    "Experience":[1,3,5,7,10],
+    "Working_Hours":[40,42,45,44,46],
+    "Performance_Score":[60,68,75,82,90]
+})
+df[df.columns] = StandardScaler().fit_transform(df)
+print(df)
+Q2 [20 Marks] Create book data, Venn diagram by publication period and Word Cloud.
+Solution — Q2 (Option A)
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2
+from wordcloud import WordCloud
+df=pd.DataFrame({
+ "Book Title":["Data Science","Python Basics","AI Guide",
+               "ML Handbook","Python Projects","Deep Learning"],
+ "Author":["A","B","C","A","B","D"],
+ "Publication Year":[2010,2012,2016,2018,2020,2022],
+ "Average Rating":[4.1,4.2,4.5,4.6,4.4,4.7],
+ "Number of Ratings":[500,600,800,900,700,1000]
+})
+old=set(df[df["Publication Year"]<2017]["Author"])
+new=set(df[df["Publication Year"]>=2017]["Author"])
+venn2([old,new],set_labels=("Older","Newer"))
+plt.title("Authors by Publication Period"); plt.show()
+text=" ".join(df["Book Title"])
+wc=WordCloud(width=800,height=400,
+             background_color="white").generate(text)
+plt.imshow(wc,interpolation="bilinear"); plt.axis("off")
+plt.title("Book Titles Word Cloud"); plt.show()
+OR
+Q2 [20 Marks] Apply Apriori to student activities for support 0.2 and 0.3.
+Solution — Q2 (Option B)
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+transactions=[
+["Library","Seminar"],["Workshop","Project"],["Library","Assignment"],
+["Seminar","Workshop"],["Assignment","Seminar"],["Workshop","Assignment"],
+["Project","Library"],["Library","Seminar","Project"],
+["Library","Seminar","Workshop"]]
+te=TransactionEncoder()
+df=pd.DataFrame(te.fit(transactions).transform(transactions),
+                columns=te.columns_)
+for support in [.2,.3]:
+    freq=apriori(df,min_support=support,use_colnames=True)
+    rules=association_rules(freq,metric="confidence",min_threshold=.5)
+    print("\nSupport:",support)
+    print(freq)
+    print(rules[["antecedents","consequents","support","confidence"]])
+
